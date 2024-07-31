@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from models import Expense
 
 class ExpenseTrackerApp:
     def __init__(self, root):
@@ -40,13 +41,34 @@ class ExpenseTrackerApp:
         self.total_button.pack(pady=5)
 
     def add_expense(self):
-        pass
+        description = self.desc_entry.get()
+        amount = self.amount_entry.get()
+        category = self.category_entry.get()
+        if description and amount and category:
+            try:
+                amount = float(amount)
+                expense = Expense(description, amount, category)
+                self.expenses.append(expense)
+                self.update_expense_listbox()
+                self.desc_entry.delete(0, tk.END)
+                self.amount_entry.delete(0, tk.END)
+                self.category_entry.delete(0, tk.END)
+            except ValueError:
+                messagebox.showerror("Invalid Input", "Please enter a valid amount.")
+        else:
+            messagebox.showwarning("Missing Fields", "Please fill in all fields.")
+
+    def update_expense_listbox(self):
+        self.expense_listbox.delete(0, tk.END)
+        for expense in self.expenses:
+            self.expense_listbox.insert(tk.END, str(expense))
 
     def remove_expense(self):
         pass
 
     def view_total_expenses(self):
         pass
+
 
 if __name__ == "__main__":
     root = tk.Tk()
