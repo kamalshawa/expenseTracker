@@ -6,7 +6,7 @@ class ExpenseTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Expense Tracker")
-        self.root.geometry("400x400")
+        self.root.geometry("400x500")
 
         self.expenses = []
 
@@ -14,17 +14,17 @@ class ExpenseTrackerApp:
 
     def create_widgets(self):
         self.desc_label = tk.Label(self.root, text="Description")
-        self.desc_label.pack()
+        self.desc_label.pack(pady=5)
         self.desc_entry = tk.Entry(self.root, width=50)
         self.desc_entry.pack(pady=5)
 
         self.amount_label = tk.Label(self.root, text="Amount")
-        self.amount_label.pack()
+        self.amount_label.pack(pady=5)
         self.amount_entry = tk.Entry(self.root, width=50)
         self.amount_entry.pack(pady=5)
 
         self.category_label = tk.Label(self.root, text="Category")
-        self.category_label.pack()
+        self.category_label.pack(pady=5)
         self.category_entry = tk.Entry(self.root, width=50)
         self.category_entry.pack(pady=5)
 
@@ -64,10 +64,16 @@ class ExpenseTrackerApp:
             self.expense_listbox.insert(tk.END, str(expense))
 
     def remove_expense(self):
-        pass
+        selected_index = self.expense_listbox.curselection()
+        if selected_index:
+            del self.expenses[selected_index[0]]
+            self.update_expense_listbox()
+        else:
+            messagebox.showwarning("Warning", "No expense selected")
 
     def view_total_expenses(self):
-        pass
+        total = sum(expense.amount for expense in self.expenses)
+        messagebox.showinfo("Total Expenses", f"Total Expenses: ${total:.2f}")
 
 
 if __name__ == "__main__":
