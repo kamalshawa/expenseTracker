@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 from models import Expense
+import json
+import os
 
 class ExpenseTrackerApp:
     def __init__(self, root):
@@ -12,6 +14,7 @@ class ExpenseTrackerApp:
         self.expenses = []
 
         self.create_widgets()
+        self.load_expenses()  # Call load_expenses after widgets are created
 
     def create_widgets(self):
         input_frame = tk.Frame(self.root)
@@ -58,8 +61,9 @@ class ExpenseTrackerApp:
 
         self.category_var = tk.StringVar()
         self.category_combobox = ttk.Combobox(filter_frame, textvariable=self.category_var)
-        self.category_combobox['values'] = []  # Initialize with empty values
+        self.category_combobox['values'] = [""]  # Initialize with empty value
         self.category_combobox.grid(row=0, column=1, padx=5, pady=5)
+        self.category_combobox.current(0)  # Set the default value to empty
 
         self.filter_button = tk.Button(filter_frame, text="Apply Filter", command=self.apply_filter)
         self.filter_button.grid(row=0, column=2, padx=5, pady=5)
@@ -79,6 +83,7 @@ class ExpenseTrackerApp:
                 self.expenses.append(expense)
                 self.update_expense_listbox()
                 self.update_category_combobox()
+                self.save_expenses()  # Save expenses after adding
                 self.desc_entry.delete(0, tk.END)
                 self.amount_entry.delete(0, tk.END)
                 self.category_entry.delete(0, tk.END)
@@ -99,6 +104,7 @@ class ExpenseTrackerApp:
             del self.expenses[selected_index[0]]
             self.update_expense_listbox()
             self.update_category_combobox()
+            self.save_expenses()  # Save expenses after removing
         else:
             messagebox.showwarning("Warning", "No expense selected")
 
@@ -108,6 +114,7 @@ class ExpenseTrackerApp:
 
     def update_category_combobox(self):
         categories = list(set(expense.category for expense in self.expenses))
+        categories.insert(0, "")  # Ensure the empty option is always first
         self.category_combobox['values'] = categories
 
     def apply_filter(self):
@@ -124,6 +131,28 @@ class ExpenseTrackerApp:
             messagebox.showinfo("Category Total", f"Total Expenses for {selected_category}: ${total:.2f}")
         else:
             messagebox.showwarning("Warning", "No category selected")
+
+    def save_expenses(self):
+        try:
+            with open("expenses.json", "w") as file:
+                json.dump([expense.__dict__ for expense in self.expenses], file)
+            print("Expenses saved to expenses.json")
+        except Exception as e:
+            print(f"Error saving expenses: {e}")
+
+    def load_expenses(self):
+        try:
+            if os.path.exists("expenses.json"):
+                with open("expenses.json", "r") as file:
+                    expenses_data = json.load(file)
+                    self.expenses = [Expense(**data) for data in expenses_data]
+                    self.update_expense_listbox()
+                    self.update_category_combobox()
+                print("Expenses loaded from expenses.json")
+            else:
+                print("No existing expenses.json file found")
+        except Exception as e:
+            print(f"Error loading expenses: {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
