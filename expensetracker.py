@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from models import Expense
 import json
 import os
@@ -9,9 +9,10 @@ class ExpenseTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Expense Tracker")
-        self.root.geometry("400x500")
+        self.root.geometry("750x600")  # Set initial size to 750x600
 
         self.expenses = []
+        self.current_file = "expenses.json"
 
         self.create_widgets()
         self.load_expenses()  # Call load_expenses after widgets are created
@@ -28,6 +29,9 @@ class ExpenseTrackerApp:
 
         filter_frame = tk.Frame(self.root)
         filter_frame.pack(pady=10)
+
+        file_frame = tk.Frame(self.root)
+        file_frame.pack(pady=10)
 
         self.desc_label = tk.Label(input_frame, text="Description")
         self.desc_label.grid(row=0, column=0, padx=5, pady=5)
@@ -71,6 +75,12 @@ class ExpenseTrackerApp:
         self.category_total_button = tk.Button(filter_frame, text="View Category Total",
                                                command=self.view_category_total)
         self.category_total_button.grid(row=0, column=3, padx=5, pady=5)
+
+        self.load_file_button = tk.Button(file_frame, text="Load File", command=self.load_file)
+        self.load_file_button.grid(row=0, column=0, padx=5, pady=5)
+
+        self.save_file_button = tk.Button(file_frame, text="Save File As", command=self.save_file_as)
+        self.save_file_button.grid(row=0, column=1, padx=5, pady=5)
 
     def add_expense(self):
         description = self.desc_entry.get()
@@ -134,25 +144,37 @@ class ExpenseTrackerApp:
 
     def save_expenses(self):
         try:
-            with open("expenses.json", "w") as file:
+            with open(self.current_file, "w") as file:
                 json.dump([expense.__dict__ for expense in self.expenses], file)
-            print("Expenses saved to expenses.json")
+            print(f"Expenses saved to {self.current_file}")
         except Exception as e:
             print(f"Error saving expenses: {e}")
 
     def load_expenses(self):
         try:
-            if os.path.exists("expenses.json"):
-                with open("expenses.json", "r") as file:
+            if os.path.exists(self.current_file):
+                with open(self.current_file, "r") as file:
                     expenses_data = json.load(file)
                     self.expenses = [Expense(**data) for data in expenses_data]
                     self.update_expense_listbox()
                     self.update_category_combobox()
-                print("Expenses loaded from expenses.json")
+                print(f"Expenses loaded from {self.current_file}")
             else:
-                print("No existing expenses.json file found")
+                print(f"No existing {self.current_file} file found")
         except Exception as e:
             print(f"Error loading expenses: {e}")
+
+    def load_file(self):
+        file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if file_path:
+            self.current_file = file_path
+            self.load_expenses()
+
+    def save_file_as(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if file_path:
+            self.current_file = file_path
+            self.save_expenses()
 
 if __name__ == "__main__":
     root = tk.Tk()
