@@ -20,3 +20,4 @@ A GUI application to manage and track personal expenses using Python and Tkinter
 
 4. **View Total Expenses**
    - Calculate and display the total amount of all entered expenses.
+   - Pie chart breakdown of expenses
