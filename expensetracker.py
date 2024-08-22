@@ -4,6 +4,7 @@ from tkinter import ttk, filedialog
 from models import Expense
 import json
 import os
+import matplotlib.pyplot as plt
 
 class ExpenseTrackerApp:
     def __init__(self, root):
@@ -56,6 +57,9 @@ class ExpenseTrackerApp:
 
         self.total_button = tk.Button(button_frame, text="View Total Expenses", command=self.view_total_expenses)
         self.total_button.grid(row=0, column=2, padx=5, pady=5)
+
+        self.pie_chart_button = tk.Button(button_frame, text="Show Pie Chart", command=self.show_pie_chart)
+        self.pie_chart_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.expense_listbox = tk.Listbox(list_frame, width=50, height=10)
         self.expense_listbox.pack(pady=10)
@@ -175,6 +179,25 @@ class ExpenseTrackerApp:
         if file_path:
             self.current_file = file_path
             self.save_expenses()
+
+    def show_pie_chart(self):
+        if not self.expenses:
+            messagebox.showinfo("No Expenses", "No expenses to show")
+            return
+        category_totals = {}
+        for expense in self.expenses:
+            if expense.category in category_totals:
+                category_totals[expense.category] += expense.amount
+            else:
+                category_totals[expense.category] = expense.amount
+
+        categories = list(category_totals.keys())
+        amounts = list(category_totals.values())
+
+        plt.figure(figsize=(6, 6))
+        plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140)
+        plt.title("Expenses by Category")
+        plt.show()
 
 if __name__ == "__main__":
     root = tk.Tk()
